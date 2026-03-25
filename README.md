@@ -1,87 +1,136 @@
-# GestionHab
+<div align="center">
 
-Application web de gestion des habitants et des villes, construite avec **Laravel 12** et **Bootstrap 5**.
+<img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+<img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white" />
+<img src="https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" />
+<img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+<img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
 
----
+<br/><br/>
 
-## Aperçu
+# 🏙️ GestionHab
 
-GestionHab est un back-office d'administration permettant de gérer un registre de villes et leurs habitants. L'interface propose un tableau de bord avec statistiques, une gestion complète CRUD pour les villes et les habitants, ainsi qu'une recherche et filtrage en temps réel.
+**Back-office d'administration pour la gestion des villes et de leurs habitants.**  
+Construit avec Laravel 12, Bootstrap 5 et une interface moderne avec sidebar.
 
----
-
-## Fonctionnalités
-
-- Tableau de bord avec statistiques (nombre de villes, habitants, derniers ajouts)
-- Gestion des **villes** : création, modification, suppression, comptage des habitants
-- Gestion des **habitants** : création, modification, suppression, upload de photo
-- Recherche par nom, prénom ou CIN
-- Filtrage des habitants par ville
-- Pagination
-- Validation des formulaires côté serveur
-- Interface responsive avec sidebar fixe (Bootstrap 5 + Bootstrap Icons)
+</div>
 
 ---
 
-## Stack technique
+## ✨ Fonctionnalités
 
-| Couche       | Technologie              |
-|--------------|--------------------------|
-| Backend      | PHP 8.2 / Laravel 12     |
-| Frontend     | Bootstrap 5.3 + Bootstrap Icons |
-| Base de données | SQLite (par défaut) / MySQL |
-| Build assets | Vite                     |
-| Tests        | PHPUnit 11               |
+| Module | Détails |
+|--------|---------|
+| 📊 **Dashboard** | Statistiques globales : total villes, total habitants, derniers ajouts |
+| 🏙️ **Villes** | CRUD complet — création, édition, suppression, comptage des habitants |
+| 👤 **Habitants** | CRUD complet — CIN unique, photo de profil, rattachement à une ville |
+| 🔍 **Recherche** | Filtrage par nom, prénom, CIN et par ville avec pagination |
+| 🖼️ **Upload photo** | Stockage local des photos avec suppression automatique à la mise à jour |
+| ✅ **Validation** | Règles de validation serveur sur tous les formulaires |
+| 📱 **Responsive** | Interface adaptée mobile avec sidebar fixe (Bootstrap 5 + Bootstrap Icons) |
 
 ---
 
-## Prérequis
+## 🗂️ Structure du projet
 
-- PHP >= 8.2
+```
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── DashboardController.php
+│   │   ├── HabitantController.php
+│   │   └── VilleController.php
+│   └── Models/
+│       ├── Habitant.php          # belongsTo Ville
+│       └── Ville.php             # hasMany Habitants
+├── database/
+│   ├── migrations/
+│   ├── seeders/
+│   └── factories/
+└── resources/views/
+    ├── layout.blade.php
+    ├── dashboard.blade.php
+    ├── habitants/                # index · create · edit · show
+    └── villes/                   # index · create · edit
+```
+
+---
+
+## 🗄️ Schéma de la base de données
+
+```
+┌─────────────────────────────────┐       ┌──────────────────────────────────────────┐
+│             villes              │       │               habitants                  │
+├─────────────────────────────────┤       ├──────────────────────────────────────────┤
+│ id              INT (PK)        │◄──┐   │ id              INT (PK)                 │
+│ ville           VARCHAR(100)    │   └───│ ville_id        INT (FK)                 │
+│ nombreHabitant  INT             │       │ cin             VARCHAR(20) UNIQUE        │
+│ created_at      TIMESTAMP       │       │ nom             VARCHAR(100)              │
+│ updated_at      TIMESTAMP       │       │ prenom          VARCHAR(100)              │
+└─────────────────────────────────┘       │ photo           VARCHAR nullable          │
+                                          │ created_at      TIMESTAMP                │
+                                          │ updated_at      TIMESTAMP                │
+                                          └──────────────────────────────────────────┘
+```
+
+---
+
+## ⚙️ Stack technique
+
+| Couche | Technologie |
+|--------|-------------|
+| Backend | PHP 8.2 · Laravel 12 |
+| Frontend | Bootstrap 5.3 · Bootstrap Icons 1.11 |
+| Base de données | SQLite (défaut) · MySQL / MariaDB |
+| Build | Vite |
+| Tests | PHPUnit 11 |
+
+---
+
+## 🚀 Installation
+
+### Prérequis
+
+- PHP >= 8.2 avec extensions `pdo_sqlite` ou `pdo_mysql`
 - Composer
 - Node.js >= 18 & npm
-- SQLite (inclus avec PHP) ou MySQL/MariaDB
 
----
-
-## Installation
+### Démarrage rapide
 
 ```bash
-# 1. Cloner le dépôt
+# Cloner le dépôt
 git clone https://github.com/votre-utilisateur/gestionhab.git
 cd gestionhab
 
-# 2. Installer les dépendances PHP
+# Dépendances PHP
 composer install
 
-# 3. Copier le fichier d'environnement
+# Environnement
 cp .env.example .env
-
-# 4. Générer la clé d'application
 php artisan key:generate
 
-# 5. Installer les dépendances JS et compiler les assets
+# Assets
 npm install && npm run build
 
-# 6. Lancer les migrations et les seeders
+# Base de données
 php artisan migrate --seed
 
-# 7. Créer le lien symbolique pour le stockage des photos
+# Lien de stockage pour les photos
 php artisan storage:link
 
-# 8. Démarrer le serveur de développement
+# Serveur local
 php artisan serve
 ```
 
-L'application est accessible sur [http://localhost:8000](http://localhost:8000).
+> 💡 **Raccourci** : `composer setup` enchaîne automatiquement les étapes install → .env → key → migrate → npm build.
 
-> Astuce : vous pouvez aussi utiliser le script `composer setup` qui enchaîne les étapes 2 à 6 automatiquement.
+L'application est disponible sur **[http://localhost:8000](http://localhost:8000)**
 
 ---
 
-## Configuration de la base de données
+## 🛢️ Configuration base de données
 
-Par défaut, le projet utilise **SQLite**. Pour utiliser MySQL, modifiez `.env` :
+Par défaut le projet tourne sur **SQLite** (aucune configuration requise).  
+Pour basculer sur **MySQL**, modifiez `.env` :
 
 ```env
 DB_CONNECTION=mysql
@@ -94,43 +143,7 @@ DB_PASSWORD=
 
 ---
 
-## Structure du projet
-
-```
-app/
-├── Http/Controllers/
-│   ├── DashboardController.php
-│   ├── HabitantController.php
-│   └── VilleController.php
-├── Models/
-│   ├── Habitant.php
-│   └── Ville.php
-database/
-├── migrations/
-├── seeders/
-└── factories/
-resources/views/
-├── layout.blade.php
-├── dashboard.blade.php
-├── habitants/        # index, create, edit, show
-└── villes/           # index, create, edit
-```
-
----
-
-## Schéma de la base de données
-
-```
-villes
-  id, ville, nombreHabitant, created_at, updated_at
-
-habitants
-  id, cin (unique), nom, prenom, photo (nullable), ville_id (FK), created_at, updated_at
-```
-
----
-
-## Lancer les tests
+## 🧪 Tests
 
 ```bash
 php artisan test
@@ -138,6 +151,18 @@ php artisan test
 
 ---
 
-## Licence
+## 📁 Variables d'environnement clés
 
-Ce projet est sous licence [MIT](LICENSE).
+| Variable | Valeur par défaut | Description |
+|----------|-------------------|-------------|
+| `APP_NAME` | `Laravel` | Nom affiché dans l'interface |
+| `APP_ENV` | `local` | Environnement (`local`, `production`) |
+| `DB_CONNECTION` | `sqlite` | Driver base de données |
+| `FILESYSTEM_DISK` | `local` | Disque de stockage des fichiers |
+| `SESSION_DRIVER` | `database` | Driver de session |
+
+---
+
+## 📄 Licence
+
+Distribué sous licence [MIT](LICENSE).
