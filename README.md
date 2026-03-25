@@ -15,7 +15,16 @@ Construit avec Laravel 12, Bootstrap 5 et une interface moderne avec sidebar.
 
 </div>
 
+
+
 ---
+
+# Apperçu
+
+GestionHab est un back-office d'administration permettant de gérer un registre de villes et leurs habitants. L'interface propose un tableau de bord avec statistiques, une gestion complète CRUD pour les villes et les habitants, ainsi qu'une recherche et filtrage en temps réel.
+
+---
+
 
 ## ✨ Fonctionnalités
 
