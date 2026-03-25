@@ -172,6 +172,3 @@ php artisan test
 
 ---
 
-## 📄 Licence
-
-Distribué sous licence [MIT](LICENSE).
