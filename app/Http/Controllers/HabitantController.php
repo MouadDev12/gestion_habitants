@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/HabitantController.php
 
 namespace App\Http\Controllers;
 
@@ -10,31 +9,36 @@ use Illuminate\Support\Facades\Storage;
 
 class HabitantController extends Controller
 {
-    // 1. Liste + filtre par ville
     public function index(Request $request)
     {
         $villes = Ville::orderBy('ville')->get();
 
         $query = Habitant::with('ville');
 
-        // Filtre par ville si sélectionné
         if ($request->filled('ville_id')) {
             $query->where('ville_id', $request->ville_id);
         }
 
-        $habitants = $query->orderBy('nom')->paginate(6);
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('nom',    'like', "%$s%")
+                  ->orWhere('prenom', 'like', "%$s%")
+                  ->orWhere('cin',    'like', "%$s%");
+            });
+        }
+
+        $habitants = $query->orderBy('nom')->paginate(10)->withQueryString();
 
         return view('habitants.index', compact('habitants', 'villes'));
     }
 
-    // 2. Formulaire ajout
     public function create()
     {
         $villes = Ville::orderBy('ville')->get();
         return view('habitants.create', compact('villes'));
     }
 
-    // 3. Enregistrer
     public function store(Request $request)
     {
         $request->validate([
@@ -42,36 +46,32 @@ class HabitantController extends Controller
             'nom'      => 'required|min:2|max:100',
             'prenom'   => 'required|min:2|max:100',
             'ville_id' => 'required|exists:villes,id',
-            'photo'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $data = $request->all();
+        $data = $request->only('cin', 'nom', 'prenom', 'ville_id');
 
         if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')
-                                     ->store('habitants', 'public');
+            $data['photo'] = $request->file('photo')->store('habitants', 'public');
         }
 
         Habitant::create($data);
 
         return redirect()->route('habitants.index')
-                         ->with('success', '✅ Habitant ajouté !');
+                         ->with('success', 'Habitant ajouté avec succès.');
     }
 
-    // 4. Détails
     public function show(Habitant $habitant)
     {
         return view('habitants.show', compact('habitant'));
     }
 
-    // 5. Formulaire modification
     public function edit(Habitant $habitant)
     {
         $villes = Ville::orderBy('ville')->get();
         return view('habitants.edit', compact('habitant', 'villes'));
     }
 
-    // 6. Mettre à jour
     public function update(Request $request, Habitant $habitant)
     {
         $request->validate([
@@ -79,26 +79,24 @@ class HabitantController extends Controller
             'nom'      => 'required|min:2|max:100',
             'prenom'   => 'required|min:2|max:100',
             'ville_id' => 'required|exists:villes,id',
-            'photo'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $data = $request->all();
+        $data = $request->only('cin', 'nom', 'prenom', 'ville_id');
 
         if ($request->hasFile('photo')) {
             if ($habitant->photo) {
                 Storage::disk('public')->delete($habitant->photo);
             }
-            $data['photo'] = $request->file('photo')
-                                     ->store('habitants', 'public');
+            $data['photo'] = $request->file('photo')->store('habitants', 'public');
         }
 
         $habitant->update($data);
 
         return redirect()->route('habitants.index')
-                         ->with('success', '✅ Habitant modifié !');
+                         ->with('success', 'Habitant mis à jour.');
     }
 
-    // 7. Supprimer
     public function destroy(Habitant $habitant)
     {
         if ($habitant->photo) {
@@ -107,6 +105,6 @@ class HabitantController extends Controller
         $habitant->delete();
 
         return redirect()->route('habitants.index')
-                         ->with('success', '🗑️ Habitant supprimé !');
+                         ->with('success', 'Habitant supprimé.');
     }
 }
